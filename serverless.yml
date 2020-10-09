@@ -1,0 +1,36 @@
+    service:
+      name: vibe-lambda
+
+    custom:
+      webpack:
+        webpackConfig: ./webpack.config.js
+        includeModules: true
+      prune: # automatically prune old lambda versions
+        automatic: true
+        number: 3
+
+    plugins:
+      - serverless-offline
+      - serverless-webpack
+      - serverless-prune-plugin
+
+    provider:
+      name: aws
+      runtime: nodejs12.x
+      # frameworkVersion: '2'
+      stage: ${opt:stage, 'local'}
+      region: ${opt:region, 'us-east-2'}
+      apiGateway:
+        minimumCompressionSize: 1024 *# Enable gzip compression for responses > 1 KB
+      environment:
+        DEBUG: '*'
+        NODE_ENV: ${self:provider.stage}
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+
+    functions:
+      hello:
+        handler: src/handler.hello
+        events:
+          - http:
+              method: get
+              path: hello
